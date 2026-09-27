@@ -1,0 +1,29 @@
+# General
+.DS_Store
+.vscode/
+.idea/
+
+# Backend (Python)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.pytest_cache/
+**/venv/
+**/env/
+**/.env
+**/data/*.db
+data/
+*.sqlite
+*.db
+faiss_index/
+
+# Frontend (Node/React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
