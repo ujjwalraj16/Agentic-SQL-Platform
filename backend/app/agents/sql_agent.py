@@ -32,11 +32,23 @@ CRITICAL RULES:
 1. Output ONLY valid JSON — no markdown, no explanation, no chain-of-thought.
 2. Only use tables and columns that exist in the provided schema.
 3. Never invent columns or tables not in the schema.
-4. Only generate SELECT queries. Never generate DROP, DELETE, UPDATE, INSERT, etc.
-5. Use proper SQL syntax for the database type specified.
-6. Return valid JSON with exactly these fields: sql, explanation, confidence.
-7. confidence is a float between 0.0 and 1.0.
-8. The explanation should be 1-2 sentences describing what the query does.
+4. Generate any SQL operation the user requests: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, DROP, ALTER, etc.
+5. Return valid JSON with exactly these fields: sql, explanation, confidence.
+6. confidence is a float between 0.0 and 1.0.
+7. The explanation should be 1-2 sentences describing what the query does.
+
+SQLITE DIALECT RULES (when db_type is sqlite):
+- NEVER use EXTRACT(). Use strftime() instead:
+    EXTRACT(MONTH FROM col)  →  CAST(strftime('%m', col) AS INTEGER)
+    EXTRACT(YEAR FROM col)   →  CAST(strftime('%Y', col) AS INTEGER)
+    EXTRACT(DAY FROM col)    →  CAST(strftime('%d', col) AS INTEGER)
+- NEVER use DATE_TRUNC(). Use strftime() instead:
+    DATE_TRUNC('month', col) →  strftime('%Y-%m', col)
+- NEVER use ILIKE. Use LIKE (SQLite LIKE is case-insensitive for ASCII).
+- NEVER use CONCAT(). Use || operator: first_name || ' ' || last_name
+- NEVER use NOW() or CURRENT_TIMESTAMP(). Use date('now').
+- For date grouping by month use: strftime('%Y-%m', date_column)
+- For date grouping by year use: strftime('%Y', date_column)
 
 Output schema:
 {
@@ -54,6 +66,15 @@ CRITICAL RULES:
 3. Analyze the error message carefully and fix the root cause.
 4. The fix must be a SELECT query only.
 5. confidence should reflect how sure you are of the fix.
+
+SQLITE DIALECT RULES (when db_type is sqlite):
+- NEVER use EXTRACT(). Replace with strftime():
+    EXTRACT(MONTH FROM col)  →  CAST(strftime('%m', col) AS INTEGER)
+    EXTRACT(YEAR FROM col)   →  CAST(strftime('%Y', col) AS INTEGER)
+- NEVER use DATE_TRUNC(). Use strftime('%Y-%m', col) instead.
+- NEVER use ILIKE. Use LIKE instead.
+- NEVER use CONCAT(). Use || operator.
+- For grouping by month: strftime('%Y-%m', date_column)
 
 Output schema:
 {
@@ -163,32 +184,70 @@ class SQLAgent:
             return {"sql": "", "explanation": str(exc), "confidence": 0.0}
 
     def _parse_response(self, raw: str) -> dict[str, Any]:
-        """Parse LLM JSON response, stripping CoT and markdown."""
-        # Remove <think>...</think>
+        """Parse LLM JSON response with multi-strategy extraction."""
+        # Remove <think>...</think> (chain-of-thought blocks)
         raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
         # Strip markdown fences
         raw = re.sub(r"```(?:json|sql)?\s*", "", raw).replace("```", "").strip()
 
-        # Find JSON
+        # ── Strategy 1: strict json.loads on first JSON block ─────────────────
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             try:
                 data = json.loads(match.group())
-                return {
-                    "sql": str(data.get("sql", "")).strip(),
-                    "explanation": str(data.get("explanation", "")),
-                    "confidence": float(data.get("confidence", 0.5)),
-                }
+                sql = self._clean_sql(str(data.get("sql", "")))
+                if sql:
+                    return {
+                        "sql": sql,
+                        "explanation": str(data.get("explanation", "")),
+                        "confidence": float(data.get("confidence", 0.5)),
+                    }
             except (json.JSONDecodeError, ValueError):
                 pass
 
-        # Fallback: try to extract SQL directly
-        sql_match = re.search(r"SELECT\s+.+", raw, re.IGNORECASE | re.DOTALL)
-        if sql_match:
-            return {
-                "sql": sql_match.group().strip(),
-                "explanation": "SQL extracted from response.",
-                "confidence": 0.3,
-            }
+        # ── Strategy 2: manually extract "sql" value from broken JSON ─────────
+        # Handles cases where SQL contains unescaped quotes breaking json.loads
+        sql_field = re.search(
+            r'"sql"\s*:\s*"(.*?)"\s*,\s*"(?:explanation|confidence)"',
+            raw,
+            re.DOTALL,
+        )
+        if sql_field:
+            sql = self._clean_sql(sql_field.group(1))
+            if sql:
+                logger.debug("SQL extracted via regex field parser.")
+                return {
+                    "sql": sql,
+                    "explanation": "SQL extracted from response.",
+                    "confidence": 0.5,
+                }
+
+        # ── Strategy 3: grab SELECT ... up to first unambiguous JSON boundary ──
+        select_match = re.search(
+            r"(SELECT\b.+?)(?=\n\s*[\}\{\x27\x22]|$)",
+            raw,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if select_match:
+            sql = self._clean_sql(select_match.group(1))
+            if sql:
+                logger.debug("SQL extracted via SELECT fallback.")
+                return {
+                    "sql": sql,
+                    "explanation": "SQL extracted from response.",
+                    "confidence": 0.3,
+                }
 
         return {"sql": "", "explanation": "Could not generate SQL.", "confidence": 0.0}
+
+    @staticmethod
+    def _clean_sql(sql: str) -> str:
+        """Strip trailing JSON artifacts and whitespace from an extracted SQL string."""
+        sql = sql.strip()
+        # Remove any trailing JSON-like suffix: ", "key": ...
+        sql = re.sub(r'\s*"\s*,\s*"\w+"\s*:.*$', "", sql, flags=re.DOTALL)
+        # Unescape escaped quotes that llms sometimes add
+        sql = sql.replace('\\"', '"').replace("\\'" , "'")
+        # Collapse excessive whitespace but preserve structure
+        sql = re.sub(r" {2,}", " ", sql).strip()
+        return sql

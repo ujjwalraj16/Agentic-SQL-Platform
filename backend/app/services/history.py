@@ -51,6 +51,18 @@ class HistoryService:
     def get_by_id(self, query_id: str) -> Optional[HistoryItem]:
         return self._by_id.get(query_id)
 
+    def delete(self, query_id: str) -> bool:
+        if query_id in self._by_id:
+            item = self._by_id[query_id]
+            del self._by_id[query_id]
+            self._history.remove(item)
+            return True
+        return False
+
+    def clear(self) -> None:
+        self._history.clear()
+        self._by_id.clear()
+
     def total(self) -> int:
         return len(self._history)
 

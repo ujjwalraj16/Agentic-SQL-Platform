@@ -59,7 +59,7 @@ export default function ConnectPage({ onConnected }) {
   return (
     <div className="connect-page">
       <div className="connect-card">
-        <div className="connect-title">🔌 Connect Database</div>
+        <div className="connect-title">Connect Database</div>
         <div className="connect-subtitle">
           Configure your database connection. Credentials are never stored in logs.
         </div>
@@ -113,19 +113,19 @@ export default function ConnectPage({ onConnected }) {
 
         <div className="connect-actions">
           <button className="btn btn-secondary" onClick={handleTest} disabled={testing}>
-            {testing ? '⏳ Testing...' : '🔍 Test Connection'}
+            {testing ? 'Testing...' : 'Test Connection'}
           </button>
           <button className="btn btn-primary" onClick={handleConnect} disabled={connecting}>
-            {connecting ? '⏳ Connecting...' : '🔌 Connect'}
+            {connecting ? 'Connecting...' : 'Connect'}
           </button>
         </div>
 
-        <div style={{ marginTop: '24px', padding: '14px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 'var(--radius-md)' }}>
+        <div style={{ marginTop: '24px', padding: '14px', background: 'rgba(116,150,44,0.08)', border: '1px solid rgba(116,150,44,0.2)', borderRadius: 'var(--radius-md)' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-accent)', marginBottom: '6px' }}>
-            💡 Demo Database
+            Sample Database
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-            The sample SQLite database at <code style={{ color: 'var(--accent-tertiary)' }}>./data/sample.db</code> is pre-loaded with 25,000 realistic orders, customers, products, employees, and payments.
+            The sample SQLite database at <code style={{ color: 'var(--accent-secondary)' }}>./data/sample.db</code> is pre-loaded with 25,000 realistic orders, customers, products, employees, and payments.
           </div>
         </div>
       </div>

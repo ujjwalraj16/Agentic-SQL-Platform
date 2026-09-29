@@ -377,6 +377,24 @@ async def get_query_by_id(query_id: str):
     return item
 
 
+@app.delete("/api/history")
+async def clear_history():
+    """Clear all history."""
+    svc = get_history_service()
+    svc.clear()
+    return {"success": True, "message": "History cleared."}
+
+
+@app.delete("/api/history/{query_id}")
+async def delete_history_item(query_id: str):
+    """Delete a single history item by ID."""
+    svc = get_history_service()
+    deleted = svc.delete(query_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Item not found.")
+    return {"success": True, "message": "Item deleted."}
+
+
 # ── Metrics ────────────────────────────────────────────────────────────────────
 
 @app.get("/api/metrics")

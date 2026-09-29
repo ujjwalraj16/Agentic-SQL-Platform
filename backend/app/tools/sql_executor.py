@@ -58,33 +58,49 @@ def execute_sql(
     max_rows: int = 1000,
 ) -> ExecutionResult:
     """
-    Execute validated SQL and return structured results.
-    Applies a row limit to prevent runaway queries.
+    Execute SQL and return structured results.
+    - SELECT queries: results returned, transaction rolled back (safe read)
+    - DML/DDL (INSERT, UPDATE, DELETE, CREATE, DROP, etc.): committed to DB
     """
     t_start = time.perf_counter()
 
+    # Detect write vs read
+    sql_type = sql.strip().split()[0].upper() if sql.strip() else "SELECT"
+    is_write = sql_type in {"INSERT", "UPDATE", "DELETE", "CREATE", "DROP",
+                            "ALTER", "TRUNCATE", "REPLACE", "MERGE", "UPSERT"}
+
     try:
         with engine.connect() as conn:
-            # Wrap in a transaction that we immediately roll back to enforce read-only
             with conn.begin() as txn:
                 result = conn.execute(text(sql))
-                columns = list(result.keys())
-                all_rows = result.fetchall()
                 elapsed = (time.perf_counter() - t_start) * 1000
 
-                truncated = len(all_rows) > max_rows
-                rows = [list(r) for r in all_rows[:max_rows]]
-
-                # Rollback to enforce read-only (even for SELECT, safety net)
-                txn.rollback()
-
-        return ExecutionResult(
-            columns=columns,
-            rows=rows,
-            row_count=len(rows),
-            execution_time_ms=elapsed,
-            truncated=truncated,
-        )
+                if is_write:
+                    # Commit writes so they persist
+                    txn.commit()
+                    rows_affected = result.rowcount if result.rowcount != -1 else 0
+                    # Return a summary row for DML/DDL
+                    return ExecutionResult(
+                        columns=["status", "rows_affected"],
+                        rows=[[f"{sql_type} executed successfully", rows_affected]],
+                        row_count=1,
+                        execution_time_ms=elapsed,
+                        truncated=False,
+                    )
+                else:
+                    # Read: fetch results then rollback
+                    columns = list(result.keys())
+                    all_rows = result.fetchall()
+                    truncated = len(all_rows) > max_rows
+                    rows = [list(r) for r in all_rows[:max_rows]]
+                    txn.rollback()
+                    return ExecutionResult(
+                        columns=columns,
+                        rows=rows,
+                        row_count=len(rows),
+                        execution_time_ms=elapsed,
+                        truncated=truncated,
+                    )
 
     except Exception as exc:
         elapsed = (time.perf_counter() - t_start) * 1000

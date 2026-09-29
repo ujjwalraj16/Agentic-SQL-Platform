@@ -21,18 +21,8 @@ from sqlparse.tokens import Keyword, DDL, DML
 
 logger = logging.getLogger(__name__)
 
-# Dangerous SQL keywords that modify data (READ-ONLY enforcement)
-BLOCKED_KEYWORDS = {
-    "DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE",
-    "ALTER", "CREATE", "REPLACE", "MERGE", "UPSERT",
-    "GRANT", "REVOKE", "EXEC", "EXECUTE", "CALL",
-}
-
 # SQL injection patterns (heuristic)
 INJECTION_PATTERNS = [
-    r";\s*(DROP|DELETE|UPDATE|INSERT|TRUNCATE)",
-    r"--\s*$",
-    r"\/\*.*?\*\/",
     r"xp_\w+",
     r"UNION\s+ALL\s+SELECT.*FROM.*information_schema",
 ]
@@ -81,47 +71,25 @@ def validate_sql(sql: str, schema: dict[str, Any]) -> ValidationResult:
         errors.append(f"SQL parse error: {e}")
         return ValidationResult(False, errors, warnings)
 
-    # ── 2. Dangerous operation check (READ-ONLY) ──────────────────────────────
-    upper_sql = sql_stripped.upper()
-    first_token = stmt.get_type() or ""
-
-    # Check all keywords in the statement
-    all_keywords = {
-        t.normalized.upper()
-        for t in stmt.flatten()
-        if t.ttype in (Keyword, DDL, DML)
-    }
-
-    blocked_found = BLOCKED_KEYWORDS.intersection(all_keywords)
-    if blocked_found:
-        errors.append(
-            f"Blocked operation(s): {', '.join(blocked_found)}. "
-            "The system operates in READ-ONLY mode. "
-            "Only SELECT queries are permitted."
-        )
-
-    # Also check if the statement type is DML/DDL
-    if first_token and first_token.upper() in BLOCKED_KEYWORDS:
-        if first_token.upper() not in {b for e in errors for b in e.split(":")}:
-            errors.append(
-                f"Statement type '{first_token}' is not allowed in read-only mode."
-            )
+    # ── 2. Query type detection (informational only) ──────────────────────────
+    first_token = stmt.get_type() or "UNKNOWN"
+    is_write = first_token.upper() in {"INSERT", "UPDATE", "DELETE", "CREATE", "DROP", "ALTER", "TRUNCATE"}
 
     # ── 3. Injection pattern check ────────────────────────────────────────────
+    upper_sql = sql_stripped.upper()
     for pattern in INJECTION_PATTERNS:
         if re.search(pattern, upper_sql, re.IGNORECASE | re.DOTALL):
-            errors.append(f"Potential SQL injection pattern detected: {pattern}")
+            errors.append(f"Potential SQL injection pattern detected.")
 
-    # ── 4. Schema-aware validation ────────────────────────────────────────────
+    # ── 4. Schema-aware validation (SELECT queries only) ──────────────────────
     known_tables = set(schema.get("tables", {}).keys())
-    if known_tables:
-        # Extract table references from the SQL (rough heuristic)
+    if known_tables and not is_write:
         referenced = _extract_table_references(upper_sql, known_tables)
         unknown = referenced - {t.upper() for t in known_tables}
         if unknown:
-            errors.append(
-                f"Referenced tables not found in schema: {', '.join(unknown)}. "
-                "Check table names and verify the schema."
+            warnings.append(
+                f"Tables not found in current schema: {', '.join(unknown)}. "
+                "They may exist but weren't indexed — query will still run."
             )
 
     # ── 5. Complexity warnings ────────────────────────────────────────────────

@@ -40,6 +40,8 @@ export const api = {
   // History
   getHistory: (limit = 50) => request('GET', `/api/history?limit=${limit}`),
   getQueryById: (id) => request('GET', `/api/history/${id}`),
+  clearHistory: () => request('DELETE', '/api/history'),
+  deleteHistoryItem: (id) => request('DELETE', `/api/history/${id}`),
 
   // Metrics
   getMetrics: () => request('GET', '/api/metrics'),

@@ -66,8 +66,10 @@ def determine_visualization(
     if date_cols and num_cols:
         x = date_cols[0]
         y_cols = num_cols[:3]  # max 3 lines
+        # Use area chart for single time-series, line for multi
+        chart_type = "area" if len(y_cols) == 1 else "line"
         return {
-            "chart_type": "line",
+            "chart_type": chart_type,
             "x_axis": x,
             "y_axis": y_cols[0],
             "y_axes": y_cols,
@@ -81,7 +83,7 @@ def determine_visualization(
         x = cat_cols[0]
         y = num_cols[0]
         # Pie/donut for small datasets with one category
-        if n_rows <= 8 and n_cols == 2:
+        if n_rows <= 10 and n_cols == 2:
             return {
                 "chart_type": "pie",
                 "x_axis": x,
@@ -125,18 +127,6 @@ def determine_visualization(
             "title": f"{num_cols[1]} vs {num_cols[0]}",
             "data": chart_data,
             "color_scheme": "green",
-        }
-
-    # 1 numeric only → histogram
-    if len(num_cols) == 1 and not cat_cols:
-        return {
-            "chart_type": "histogram",
-            "x_axis": num_cols[0],
-            "y_axis": "count",
-            "y_axes": [num_cols[0]],
-            "title": f"Distribution of {num_cols[0]}",
-            "data": chart_data,
-            "color_scheme": "orange",
         }
 
     return _table_fallback(columns, rows)

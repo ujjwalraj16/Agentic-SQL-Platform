@@ -34,9 +34,13 @@ export default function SchemaPage() {
     <div className="schema-page">
       <div className="page-header"><div className="page-title">Schema Explorer</div></div>
       <div className="error-message" style={{ margin: '20px' }}>
-        <span>⚠️</span><span>{error}</span>
+        <span style={{ marginRight: '8px' }}>⚠️</span><span>{error}</span>
       </div>
     </div>
+  );
+
+  const TableIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
   );
 
   return (
@@ -60,7 +64,7 @@ export default function SchemaPage() {
               className={`table-list-item ${selectedTable?.name === tbl.name ? 'active' : ''}`}
               onClick={() => setSelectedTable(tbl)}
             >
-              <span>🗃️</span>
+              <TableIcon />
               <span>{tbl.name}</span>
               <span className="table-count">{tbl.row_count?.toLocaleString()}</span>
             </div>
@@ -72,7 +76,7 @@ export default function SchemaPage() {
           {selectedTable ? (
             <div className="table-detail">
               <div className="table-detail-header">
-                <span style={{ fontSize: '20px' }}>🗃️</span>
+                <div style={{ color: 'var(--text-muted)' }}><TableIcon /></div>
                 <div className="table-detail-title">{selectedTable.name}</div>
                 <div className="table-detail-count">{selectedTable.row_count?.toLocaleString()} rows</div>
                 <div style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -117,7 +121,7 @@ export default function SchemaPage() {
             </div>
           ) : (
             <div className="empty-state">
-              <div className="empty-icon">🗃️</div>
+              <div style={{ opacity: 0.4 }}><TableIcon /></div>
               <div className="empty-text">Select a table to explore</div>
             </div>
           )}
