@@ -1,4 +1,4 @@
-# 📈 Project Progress: DataLens
+# 📈 Project Progress: DataSphere
 
 ## Phase 1: Architecture & Foundation (✅ Complete)
 - [x] Defined multi-agent system architecture (Planner, SQL, Analytics).
@@ -23,12 +23,12 @@
 - [x] Built core components: `ChatPage`, `SchemaPage`, `HistoryPage`, `MetricsPage`, `ConnectPage`.
 - [x] Implemented a 6-tab result card interface for queries (Answer, Data, Chart, Insights, SQL, Performance).
 - [x] Integrated Recharts for dynamic, heuristic-based data visualization.
-- [x] **UI Redesign:** Fully redesigned the frontend to match the "DataLens" aesthetic. Shifted from a dark sidebar theme to a premium, light-themed top-navigation layout with Fraunces serif typography and floating chat inputs.
+- [x] **UI Redesign:** Fully redesigned the frontend to match the "DataSphere" aesthetic. Shifted from a dark sidebar theme to a premium, light-themed top-navigation layout with Fraunces serif typography and floating chat inputs.
 
 ## Phase 5: Final Polish (🚀 Current)
 - [x] Fixed `langchain_community` import deprecation warnings.
 - [x] Injected missing CSS classes across all non-chat pages to support the new light theme.
-- [x] Globally renamed the platform to DataLens.
+- [x] Globally renamed the platform to DataSphere.
 - [x] Created final documentation (`README.md`, `AGENTS.md`, `PROGRESS.md`).
 
 ## Future Enhancements (Backlog)

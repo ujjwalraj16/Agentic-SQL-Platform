@@ -1,6 +1,6 @@
-# 🤖 DataLens Agent Architecture
+# 🤖 DataSphere Agent Architecture
 
-DataLens implements a strict **multi-agent workflow** using **LangGraph**. Rather than relying on a single large LLM call to handle text-to-SQL (which often hallucinates), the system delegates responsibilities to three highly specialized agents.
+DataSphere implements a strict **multi-agent workflow** using **LangGraph**. Rather than relying on a single large LLM call to handle text-to-SQL (which often hallucinates), the system delegates responsibilities to three highly specialized agents.
 
 ## 1. Planner Agent (`planner.py`)
 **Role:** The architect and intent parser.

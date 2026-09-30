@@ -1,30 +1,30 @@
 /* ============================================================
    App.css – Agentic SQL Intelligence Platform
-   Light & Airy Theme (DataLens inspired)
+   Light & Airy Theme (DataSphere inspired)
    ============================================================ */
 
 /* The index.html now loads Fraunces (serif) and Inter (sans-serif) */
 
 :root {
-  --bg-primary: #f9faf8;
-  --bg-secondary: #ffffff;
+  --bg-primary: #e6f2ff;
+  --bg-secondary: #f0f7ff;
   --bg-card: #ffffff;
-  --bg-elevated: #f3f4f0;
-  --bg-hover: #f1f2ee;
+  --bg-elevated: #d9ebff;
+  --bg-hover: #eaf3ff;
   
   --border-subtle: #e5e7eb;
   --border-medium: #d1d5db;
   --border-glow: rgba(26, 54, 54, 0.1);
 
-  --text-primary: #121e1e; /* Dark slate */
+  --text-primary: #0f172a; /* Deep navy */
   --text-secondary: #4b5563;
   --text-muted: #6b7280;
-  --text-accent: #74962c; /* Olive green */
+  --text-accent: #2563eb; /* Royal blue */
 
-  --accent-primary: #1a3636; /* Dark slate button */
-  --accent-secondary: #74962c; /* Olive green */
-  --accent-tertiary: #a9c67f;
-  --accent-success: #74962c;
+  --accent-primary: #1e40af; /* Deep blue */
+  --accent-secondary: #3b82f6; /* Blue */
+  --accent-tertiary: #93c5fd;
+  --accent-success: #10b981;
   --accent-warning: #f59e0b;
   --accent-error: #ef4444;
   --accent-info: #3b82f6;
@@ -220,9 +220,9 @@ h1, h2, h3, .serif-text {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 40px;
   /* Non-chat pages get their own padding via page-header */
 }
 
@@ -245,7 +245,7 @@ h1, h2, h3, .serif-text {
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--nav-height));
-  max-width: 900px;
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
   overflow: hidden;
@@ -408,27 +408,28 @@ h1, h2, h3, .serif-text {
   display: flex;
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-primary);
-  padding: 0 16px;
-  gap: 8px;
+  padding: 12px 16px;
+  gap: 12px;
   overflow-x: auto;
 }
 
 .tab-btn {
-  padding: 12px 16px;
-  border: none;
-  background: transparent;
+  padding: 10px 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border-radius: 8px;
   color: var(--text-secondary);
   font-size: 13px; font-weight: 600;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
-.tab-btn:hover { color: var(--accent-primary); }
+.tab-btn:hover { color: var(--accent-primary); border-color: var(--accent-primary); background: var(--bg-hover); }
 .tab-btn.active {
-  color: var(--accent-primary);
-  border-bottom-color: var(--accent-primary);
+  color: white;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
 }
 
 .tab-content { padding: 24px; }
@@ -446,7 +447,7 @@ h1, h2, h3, .serif-text {
 
 .query-input-card {
   width: 100%;
-  max-width: 800px;
+  max-width: 1200px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
@@ -687,7 +688,7 @@ h1, h2, h3, .serif-text {
 }
 .metric-icon { font-size: 28px; }
 .metric-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-.metric-value { font-size: 36px; font-weight: 800; color: var(--text-primary); font-family: 'Fraunces', serif; }
+.metric-value { font-size: 36px; font-weight: 800; color: var(--text-primary); font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
 
 /* ── Connect Page ──────────────────────────────────────────── */
 .connect-page { max-width: 600px; margin: 0 auto; }

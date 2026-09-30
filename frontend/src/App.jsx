@@ -8,7 +8,7 @@ import { api } from './services/api';
 import './App.css';
 
 const NAV_ITEMS = [
-  { id: 'chat', label: 'Analysis Chat' },
+  { id: 'chat', label: 'Home' },
   { id: 'schema', label: 'Schema' },
   { id: 'history', label: 'History' },
   { id: 'metrics', label: 'Capabilities' },
@@ -68,7 +68,7 @@ export default function App() {
                 <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
               </svg>
             </div>
-            <div className="logo-text">DataLens</div>
+            <div className="logo-text">DataSphere</div>
           </div>
         </div>
 

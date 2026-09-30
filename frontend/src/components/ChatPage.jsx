@@ -20,7 +20,7 @@ const Icon = {
   Paperclip:    () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>),
 };
 
-const PALETTE = ['#1a3636', '#74962c', '#a9c67f', '#2d7d7d', '#c4a23d', '#5b7fa6', '#d6ebec', '#8b5e3c'];
+const PALETTE = ['#1e40af', '#3b82f6', '#93c5fd', '#2d7d7d', '#c4a23d', '#5b7fa6', '#d6ebec', '#8b5e3c'];
 
 const EXAMPLE_QUERIES = [
   "What were the top 5 products by revenue in 2025?",
@@ -57,7 +57,11 @@ export default function ChatPage({ sessionId, onHistoryUpdate, onConnectDB }) {
   const textareaRef = useRef(null);
   const stepIntervalRef = useRef(null);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
+  useEffect(() => { 
+    if (messages.length > 0 || loading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+    }
+  }, [messages, loading]);
 
   const startLoadingAnimation = () => {
     let step = 0; setLoadingStep(0);
@@ -125,7 +129,7 @@ export default function ChatPage({ sessionId, onHistoryUpdate, onConnectDB }) {
 function WelcomeScreen({ onExample, onConnectDB }) {
   return (
     <div className="welcome-screen fade-in">
-      <div className="analyst-badge"><div className="dot" />Your personal data analyst</div>
+      <div className="analyst-badge"><div className="dot" />Your personal data assistant</div>
       <div className="welcome-title">Data has a story.<br/><em>Let's find it.</em></div>
       <div className="welcome-subtitle">
         Connect your own database or use the built-in demo. Ask questions in plain English
@@ -138,6 +142,53 @@ function WelcomeScreen({ onExample, onConnectDB }) {
       <div style={{ fontSize:'12px', color:'var(--text-muted)', marginTop:'8px' }}>&#x2713; Works with SQLite, PostgreSQL, MySQL &nbsp;&middot;&nbsp; &#x2713; Read-only &amp; secure</div>
       <div className="example-queries">
         {EXAMPLE_QUERIES.map((q, i) => <button key={i} className="example-chip" onClick={() => onExample(q)}>{q}</button>)}
+      </div>
+
+      <div className="feature-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', width: '100%', marginTop: '60px', textAlign: 'left' }}>
+        <div className="feature-card" style={{ padding: '24px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>01</div>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>Upload your data</h3>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Drop in any CSV in seconds.</p>
+        </div>
+        <div className="feature-card" style={{ padding: '24px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>02</div>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>Ask in plain English</h3>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Let the agent explore the details.</p>
+        </div>
+        <div className="feature-card" style={{ padding: '24px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>03</div>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>See the signal</h3>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Get answers, summaries and charts.</p>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '80px', width: '100%', maxWidth: '800px' }}>
+        <h2 style={{ fontSize: '14px', letterSpacing: '0.05em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '16px', fontWeight: 600 }}>Analysis, without the learning curve</h2>
+        <h3 style={{ fontSize: '42px', fontWeight: '800', color: 'var(--accent-primary)', marginBottom: '32px', fontFamily: '"Fraunces", serif', lineHeight: 1.1 }}>A calm workspace for<br/>curious questions.</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', textAlign: 'left', background: 'transparent', padding: '0', borderRadius: '0', border: 'none', boxShadow: 'none', marginTop: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--accent-secondary)' }}><Icon.MessageSq /></div>
+            <span style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 500 }}>Explore datasets conversationally</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--accent-secondary)' }}><Icon.TrendUp /></div>
+            <span style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 500 }}>Surface trends and anomalies</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--accent-secondary)' }}><Icon.BarChart /></div>
+            <span style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 500 }}>Create charts when words aren’t enough</span>
+          </div>
+        </div>
+        
+        <div style={{ marginTop: '80px', padding: '48px 24px', background: 'var(--accent-primary)', borderRadius: 'var(--radius-xl)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '8px', opacity: 0.9 }}>Open your workspace</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '32px', fontWeight: 800, fontFamily: '"Fraunces", serif', marginBottom: '16px' }}>
+             DataSphere<span style={{ color: 'var(--accent-secondary)' }}>.</span>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '32px', fontSize: '16px' }}>Make better decisions, one question at a time.</p>
+          <button className="btn-pill" style={{ background: 'white', color: 'var(--accent-primary)', padding: '14px 28px', fontSize: '16px' }} onClick={() => onExample(EXAMPLE_QUERIES[0])}>Launch agent</button>
+        </div>
       </div>
     </div>
   );
@@ -152,7 +203,7 @@ function ResultCard({ data }) {
     <div className="result-card fade-in">
       <div className="result-header">
         <div className="result-agent-badge">
-          <div className="icon" style={{ display:'flex', alignItems:'center' }}><Icon.Sparkle /></div>DataLens AI
+          <div className="icon" style={{ display:'flex', alignItems:'center' }}><Icon.Sparkle /></div>DataSphere AI
         </div>
         <div className="result-time">{new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</div>
       </div>
@@ -383,7 +434,7 @@ function InsightsTab({ analytics }) {
       ))}
       {analytics.trends?.map((trend, i) => (
         <div key={`t${i}`} className="insight-card">
-          <span style={{ display:'flex', color:'#74962c', flexShrink:0 }}><Icon.TrendUp /></span>
+          <span style={{ display:'flex', color:'var(--accent-secondary)', flexShrink:0 }}><Icon.TrendUp /></span>
           <span style={{ fontSize:'14px', color:'var(--text-primary)', lineHeight:'1.5' }}>{trend}</span>
         </div>
       ))}
