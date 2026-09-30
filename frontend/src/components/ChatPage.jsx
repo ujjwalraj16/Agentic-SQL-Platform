@@ -289,12 +289,21 @@ function ChartTab({ visualization }) {
   const tooltipStyle = { borderRadius:'8px', border:'none', boxShadow:'0 4px 20px rgba(0,0,0,0.12)', fontSize:'13px' };
   const axisProps = { tick:{ fill:'var(--text-muted)', fontSize:12 }, axisLine:false, tickLine:false };
 
+  const formatYAxis = (value) => {
+    if (typeof value !== 'number') return value;
+    const abs = Math.abs(value);
+    if (abs >= 1000000000) return (value / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (abs >= 1000000) return (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (abs >= 1000) return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return value.toLocaleString();
+  };
+
   // ── Render helpers ──────────────────────────────────────────────────────────
   const renderBar = () => (
     <BarChart data={data} margin={{ top:8, right:16, left:0, bottom:8 }}>
       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
       <XAxis dataKey={xKey} {...axisProps} interval="preserveStartEnd" />
-      <YAxis {...axisProps} width={60} />
+      <YAxis {...axisProps} width={70} tickFormatter={formatYAxis} />
       <Tooltip contentStyle={tooltipStyle} />
       <Legend />
       {yKeys.map((k, i) => <Bar key={k} dataKey={k} fill={PALETTE[i % PALETTE.length]} radius={[4,4,0,0]} maxBarSize={60} />)}
@@ -305,7 +314,7 @@ function ChartTab({ visualization }) {
     <LineChart data={data} margin={{ top:8, right:16, left:0, bottom:8 }}>
       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
       <XAxis dataKey={xKey} {...axisProps} interval="preserveStartEnd" />
-      <YAxis {...axisProps} width={60} />
+      <YAxis {...axisProps} width={70} tickFormatter={formatYAxis} />
       <Tooltip contentStyle={tooltipStyle} />
       <Legend />
       {yKeys.map((k, i) => (
@@ -331,7 +340,7 @@ function ChartTab({ visualization }) {
     <ScatterChart margin={{ top:8, right:16, left:0, bottom:8 }}>
       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
       <XAxis dataKey={xKey} name={xKey} {...axisProps} width={60} />
-      <YAxis dataKey={yKeys[0]} name={yKeys[0]} {...axisProps} width={60} />
+      <YAxis dataKey={yKeys[0]} name={yKeys[0]} {...axisProps} width={70} tickFormatter={formatYAxis} />
       <ZAxis range={[40, 200]} />
       <Tooltip contentStyle={tooltipStyle} cursor={{ strokeDasharray:'3 3' }} />
       <Legend />
@@ -344,7 +353,7 @@ function ChartTab({ visualization }) {
     <BarChart data={data} margin={{ top:8, right:16, left:0, bottom:8 }}>
       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
       <XAxis dataKey={xKey} {...axisProps} />
-      <YAxis {...axisProps} width={60} />
+      <YAxis {...axisProps} width={70} tickFormatter={formatYAxis} />
       <Tooltip contentStyle={tooltipStyle} />
       <Bar dataKey={yKeys[0] || xKey} fill={PALETTE[0]} radius={[2,2,0,0]} />
     </BarChart>
@@ -363,7 +372,7 @@ function ChartTab({ visualization }) {
       </defs>
       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
       <XAxis dataKey={xKey} {...axisProps} interval="preserveStartEnd" />
-      <YAxis {...axisProps} width={60} />
+      <YAxis {...axisProps} width={70} tickFormatter={formatYAxis} />
       <Tooltip contentStyle={tooltipStyle} />
       <Legend />
       {yKeys.map((k, i) => (

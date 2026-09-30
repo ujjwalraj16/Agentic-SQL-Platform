@@ -36,6 +36,7 @@ CRITICAL RULES:
 5. Return valid JSON with exactly these fields: sql, explanation, confidence.
 6. confidence is a float between 0.0 and 1.0.
 7. The explanation should be 1-2 sentences describing what the query does.
+8. ALWAYS fully qualify column names with their table names (e.g., table_name.column_name) when performing JOINs to prevent ambiguous column errors.
 
 SQLITE DIALECT RULES (when db_type is sqlite):
 - NEVER use EXTRACT(). Use strftime() instead:
@@ -66,6 +67,7 @@ CRITICAL RULES:
 3. Analyze the error message carefully and fix the root cause.
 4. The fix must be a SELECT query only.
 5. confidence should reflect how sure you are of the fix.
+6. ALWAYS fully qualify column names with their table names (e.g., table_name.column_name) to fix ambiguous column errors.
 
 SQLITE DIALECT RULES (when db_type is sqlite):
 - NEVER use EXTRACT(). Replace with strftime():
